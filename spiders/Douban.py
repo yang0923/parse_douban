@@ -192,7 +192,7 @@ class SpiderDouban:
     @logger.catch
     def parse(self):
         """ 解析页面 """
-        results = {}  # 创建一个字典来存储所有解析结果
+        results = {"douban_id":self.DoubanId}  # 创建一个字典来存储所有解析结果
         with ThreadPoolExecutor() as executor: # 创建一个线程池执行器, 用于并发执行解析任务, 提高效率, 减少等待时间
             futures = {
                 executor.submit(self.parse_name): "name",
@@ -216,7 +216,8 @@ class SpiderDouban:
                     # logger.info(f"{futures[future]}: {result}") # 打印结果
                 except Exception as e:
                     logger.error(f"解析 {futures[future]} 时发生错误: {e}") # 打印错误信息
-        logger.info(f"解析结果: {results}") # 打印解析结果
+        
+        logger.info(f"页面解析完成......")
         return results if results else None  # 返回解析后的结果数据或 None
         
 
