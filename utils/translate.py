@@ -103,15 +103,22 @@ class MyTranslator:
         for sentence in sentences:
             if len(batch) + len(sentence) > self.MAX_QUERY_LENGTH:
                 # 执行翻译并清空批次
-                translated_text.append(self.perform_translation(batch, from_lang, to_lang))
+                translated = self.perform_translation(batch, from_lang, to_lang)
+                if translated:
+                    translated_text.append(translated)
                 batch = sentence
             else:
                 batch += " " + sentence if batch else sentence
 
         if batch:
-            translated_text.append(self.perform_translation(batch, from_lang, to_lang))
+            translated = self.perform_translation(batch, from_lang, to_lang)
+            if translated:
+                translated_text.append(translated)
 
-        return ' '.join(translated_text)
+        if translated_text:
+            return ' '.join(translated_text)
+        else:
+            return None
 
     @logger.catch
     def perform_translation(self, text: str, from_lang: str, to_lang: str):
@@ -132,7 +139,7 @@ class MyTranslator:
             return translation
         except Exception as e:
             logger.error(f"翻译失败: {e}")
-            return text  # 出现错误时返回原文
+            return None  # 出现错误时返回原文
 
     @logger.catch
     def run(self, text: str, from_lang: str = "zh", to_lang: str = "en"):
