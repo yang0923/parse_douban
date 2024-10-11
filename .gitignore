@@ -1,0 +1,8 @@
+parse_douban.spec
+.venv
+datas
+dist
+build
+__pycache__
+logs
+.vscode
