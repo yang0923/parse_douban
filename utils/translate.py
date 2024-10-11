@@ -42,41 +42,6 @@ class MyTranslator:
                 current_batch = sentence  # 开始新的批次
             else:
                 current_batch += " " + sentence if current_batch else sentence
-
-        # 添加最后一个批次
-        if current_batch:
-            merged_sentences.append(current_batch.strip())
-
-        return merged_sentences
-
-    @logger.catch
-    def split_text(self, text: str):
-        """
-        根据句子分割长文本并尽量合并相邻句子以减少分片
-        
-        参数:
-        text (str): 需要分割的长文本
-
-        返回:
-        list: 分割后的句子列表
-        """
-        parts = self.sentence_endings.split(text)
-        sentences = [''.join(parts[i:i+2]).strip() for i in range(0, len(parts)-1, 2)]
-        
-        if len(parts) % 2 != 0:
-            sentences.append(parts[-1].strip())
-
-        merged_sentences = []
-        current_batch = ""
-
-        for sentence in sentences:
-            # 检查当前批次和即将添加的句子长度
-            if len(current_batch) + len(sentence) + 1 > self.MAX_QUERY_LENGTH:  # +1 为空格
-                if current_batch:  # 如果当前批次不为空，将其添加到合并结果中
-                    merged_sentences.append(current_batch.strip())
-                current_batch = sentence  # 开始新的批次
-            else:
-                current_batch += " " + sentence if current_batch else sentence
                 
         # 添加最后一个批次
         if current_batch:
@@ -136,6 +101,11 @@ class MyTranslator:
         try:
             translator = Translator(to_lang=to_lang, from_lang=from_lang)
             translation = translator.translate(text)
+
+            # 判断 translation 是不是全是大写英文字符?? 出符号外
+            if translation.isupper() and any(c.isalpha() for c in translation):
+                return None  # 如果翻译结果全是大写英文字符，则认为翻译失败，返回 None
+            
             return translation
         except Exception as e:
             logger.error(f"翻译失败: {e}")
